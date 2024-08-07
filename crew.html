@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>Dashboard</title>
+    <style>
+        
+        body { 
+            background-color: rgb(91, 139, 139);
+        }
+        /* .container {
+            margin-top: 50px;
+        } */
+    
+
+
+         table {
+             width: 100%;
+             border-collapse: collapse;
+         }
+         table, th, td {
+             border: 1px solid black;
+         }
+         th, td {
+             padding: 8px;
+             text-align: left;
+         }
+         th {
+             background-color: #f2f2f2;
+         }
+     </style>
+     <script>
+         async function fetchData() {
+             try {
+                 const response = await fetch('crew.php');
+                 const data = await response.json();
+ 
+                 if (data.error) {
+                     document.getElementById('error').innerText = data.error;
+                     return;
+                 }
+ 
+                 let userTableContent = '';
+                 data.users.forEach(user => {
+                     userTableContent += `
+                          <tr>
+                             <td>${user.noUtilisateur}</td>
+                             <td>${user.username}</td>
+                             <td>${user.code}</td>
+                             <td>${user.password}</td>
+                             <td>${user.role}</td>
+                             <td>${user.gsm}</td>
+                             <td>${user.email}</td>
+                             <td>
+                                <button type="button" class="btn btn-success mt-2 mb-2" onclick="deleteUser(${user.noUtilisateur})">Supprimer</button>
+                                <a href="edit.php?noUtilisateur=${user.noUtilisateur}" class="btn btn-danger mt-2 mb-2"> _modifier_</a>
+
+                             </td>
+                          </tr>
+                     `;
+                 });
+                 document.getElementById('user-table-body').innerHTML = userTableContent;
+ 
+                 let requestTableContent = '';
+                 data.requests.forEach(request => {
+                     requestTableContent += `
+                          <tr>
+                             <td>${request.noUtilisateur}</td>
+                             <td>${request.username}</td>
+ 
+                              <td>${request.gsm}</td>
+                             <td>${request.email}</td>
+                            <td>${request.comment}</td>
+
+                             <td>
+
+                                <button type="button" class="btn btn-success mt-2 mb-2" onclick="acceptRequest(${request.noUtilisateur})">_Accepter_</button><br>
+                                <button type="button" class="btn btn-danger mt-2 mb-2" onclick="deleteRequest(${request.noUtilisateur})">Supprimer</button>
+                             </td>
+                          </tr>
+                     `;
+                 });
+                 document.getElementById('request-table-body').innerHTML = requestTableContent;
+             } catch (error) {
+                 document.getElementById('error').innerText = 'Erreur lors de la récupération des données.';
+             }
+         }
+ 
+
+
+
+
+         async function deleteUser(noUtilisateur) {
+             try {
+                 const response = await fetch('delete.php', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/x-www-form-urlencoded',
+                     },
+                     body: `noUtilisateur=${noUtilisateur}`,
+                 });
+                 const result = await response.json();
+ 
+                 if (result.success) {
+                     fetchData();
+                 } else {
+                     document.getElementById('error').innerText = result.error;
+                 }
+             } catch (error) {
+                 document.getElementById('error').innerText = 'Erreur lors de la suppression de la demande.';
+             }
+         }
+ 
+         async function acceptRequest(noUtilisateur) {
+             try {
+                 const response = await fetch('accept_request.php', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/x-www-form-urlencoded',
+                     },
+                     body: `noUtilisateur=${noUtilisateur}`,
+                 });
+                 const result = await response.json();
+ 
+                 if (result.success) {
+                     fetchData();
+                 } else {
+                     document.getElementById('error').innerText = result.error;
+                 }
+             } catch (error) {
+                 document.getElementById('error').innerText = 'Erreur lors de l\'acceptation de la demande.';
+             }
+         }
+
+
+         async function deleteRequest(noUtilisateur) {
+             try {
+                 const response = await fetch('delete_request.php', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/x-www-form-urlencoded',
+                     },
+                     body: `noUtilisateur=${noUtilisateur}`,
+                 });
+                 const result = await response.json();
+ 
+                 if (result.success) {
+                     fetchData();
+                 } else {
+                     document.getElementById('error').innerText = result.error;
+                 }
+             } catch (error) {
+                 document.getElementById('error').innerText = 'Erreur lors de la suppression de la demande.';
+             }
+         }
+
+
+         
+
+ 
+         window.onload = fetchData;
+     </script>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Navbar</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="admin.php">Profile</a>
+              </li>
+             </ul>
+      
+            <form class="d-flex">
+      
+              <a class="btn btn-outline-primary mx-2" type="submit" href="sign1.php" >Ajouter</a>
+              <a class="btn btn-outline-primary mx-2" type="submit" href="crew.html" >Gerer</a>
+              <a class="btn btn-outline-primary mx-2" type="submit" href="allHistorique.html" >historique</a>
+              <a class="btn btn-outline-success mx-2" type="submit" href="home.php" >Deconnection</a>
+      
+       
+              
+            </form>
+          </div>
+        </div>
+      </nav>
+
+
+
+
+
+    <div class="container">
+        <h1>Dashboard</h1>
+    <h3>Welcome to your dashboard</h3>
+    
+    <!-- <a href="sign1.php" class="btn btn-success">creer un compte</a>
+    <a href="admin.php" class="btn btn-success">retourner a votre interface</a> -->
+
+    
+    <h2>Utilisateur</h2>
+    <div id="error" style="color: red;"></div>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>code</th>
+            <th>Password</th>
+            <th>Role</th>
+            <th>GSM</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        <tbody id="user-table-body"></tbody>
+    </table>
+
+    <h2>Requests</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Username</th> 
+            <th>GSM</th>
+            <th>Email</th>
+            <th>Commentaire</th>
+            <th>Action</th>
+        </tr>
+        <tbody id="request-table-body"></tbody>
+    </table>
+
+    </div>
+    
+</body>
+</html>
