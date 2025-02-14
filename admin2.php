@@ -19,6 +19,7 @@
     <?php 
       include "navbar2.php";
     ?>
+ldflsdjklsdjfkljqfkl
 
 
 <h1>bienvenue monsieur a votre interface</h1>
